@@ -1,0 +1,106 @@
+import streamlit as st
+import pandas as pd
+import altair as alt
+
+# Load dataset
+df = pd.read_csv("Chue Myat Noe_Personal Story Dataset.csv")
+
+# -------------------------------
+# 📖 Story Overview
+# -------------------------------
+st.title("📖 My Growth Journey Dashboard")
+st.write("""
+This dashboard transforms my personal journey from volunteering to professional employment
+into structured data. It highlights how civic engagement shaped my career growth and salary progression.
+""")
+
+# -------------------------------
+# 🎛️ Sidebar Filters
+# -------------------------------
+year_filter = st.sidebar.selectbox("Filter by Year", sorted(df["Year"].unique()))
+journey_filter = st.sidebar.radio("Journey Type", ["All"] + df["Journey Type"].unique().tolist())
+
+filtered_df = df[df["Year"] == year_filter] if year_filter else df
+if journey_filter != "All":
+    filtered_df = filtered_df[filtered_df["Journey Type"] == journey_filter]
+
+# -------------------------------
+# 📊 Visualization 1: Timeline of Roles
+# -------------------------------
+st.subheader("📅 Timeline of Roles")
+timeline_chart = alt.Chart(df).mark_bar().encode(
+    x="Year:N",
+    y="Duration (Months):Q",
+    color="Journey Type:N",
+    tooltip=["Role", "Organization/Event", "Duration (Months)"]
+)
+st.altair_chart(timeline_chart, use_container_width=True)
+
+# -------------------------------
+# 📊 Visualization 2: Salary Growth
+# -------------------------------
+st.subheader("💰 Cumulative Salary Growth")
+salary_chart = alt.Chart(df[df["Journey Type"]=="Employment"]).mark_line(point=True).encode(
+    x="Year:N",
+    y="Cumulative Salary Growth (MMK):Q",
+    tooltip=["Role", "Annual Avg Salary (MMK)", "Cumulative Salary Growth (MMK)"]
+)
+st.altair_chart(salary_chart, use_container_width=True)
+
+# -------------------------------
+# 📊 Visualization 3: Volunteer vs Employment Months
+# -------------------------------
+st.subheader("🤝 Volunteer vs Employment Months")
+role_chart = alt.Chart(df).mark_bar().encode(
+    x="Year:N",
+    y="Duration (Months):Q",
+    color="Journey Type:N",
+    tooltip=["Role", "Duration (Months)"]
+)
+st.altair_chart(role_chart, use_container_width=True)
+
+# -------------------------------
+# 📊 Visualization 4: Role Distribution
+# -------------------------------
+st.subheader("📊 Role Distribution")
+role_dist = alt.Chart(df).mark_arc().encode(
+    theta="count(Role):Q",
+    color="Journey Type:N",
+    tooltip=["Role", "Journey Type"]
+)
+st.altair_chart(role_dist, use_container_width=True)
+
+# -------------------------------
+# 🔍 Key Insights
+# -------------------------------
+st.header("🔍 Key Insights")
+st.write("""
+- Salary growth accelerated after 2022, especially with Better HR and Style Theory.
+- Strong volunteer foundation (2018–2021) built leadership and civic engagement skills.
+- Transition into HR/customer success roles shows alignment between volunteering and career.
+""")
+
+# -------------------------------
+# 🎯 Decision-Making Section
+# -------------------------------
+st.header("🎯 Decision-Making")
+st.write("""
+Based on the data, volunteering provided leadership and civic engagement experience that
+translated into higher-paying roles. In the future, I should continue balancing civic service
+with professional growth to sustain both impact and career progression.
+""")
+
+# -------------------------------
+# ⚖️ Ethics & Responsibility
+# -------------------------------
+st.header("⚖️ Ethics & Responsibility")
+st.write("""
+**🔒 Privacy Statement:** Dataset anonymized, no sensitive personal details included.  
+**⚠️ Bias & Limitations:** Small dataset, memory bias, salary ranges approximate.  
+**📊 Visualization Justification:**  
+- Timeline → clarity of career path  
+- Salary chart → financial progression  
+- Volunteer chart → balance of service vs career  
+- Role distribution → diversity of experiences  
+**🎯 Responsible Decision:** Insights are personal and limited; avoid overclaiming.
+""")
